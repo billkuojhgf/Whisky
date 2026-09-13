@@ -106,6 +106,8 @@ open class WineSteamClientDriver: SteamClientDriver {
         )
     }
 
+    nonisolated static let clientLaunchArguments = ["-silent", "-cef-disable-gpu"]
+
     open func processList() async -> [WineProcess] {
         guard let output = try? await Wine.runWine(["tasklist.exe", "/FO", "CSV"], bottle: bottle) else {
             return []
@@ -117,7 +119,7 @@ open class WineSteamClientDriver: SteamClientDriver {
     open func startClient(steamExe: URL) {
         let bottle = self.bottle
         Task {
-            _ = try? await Wine.runProgram(at: steamExe, args: ["-silent"], bottle: bottle)
+            _ = try? await Wine.runProgram(at: steamExe, args: Self.clientLaunchArguments, bottle: bottle)
         }
     }
 

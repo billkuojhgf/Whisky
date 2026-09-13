@@ -157,6 +157,11 @@ struct WineSteamClientDriverTests {
         #expect(WineSteamClientDriver.exeImageNames(inProcessListing: "explorer.exe") == ["explorer.exe"])
     }
 
+    @Test("Silent client start disables CEF GPU")
+    func clientLaunchArguments() {
+        #expect(WineSteamClientDriver.clientLaunchArguments == ["-silent", "-cef-disable-gpu"])
+    }
+
     @Test("The real driver reads the host process list without Wine")
     @MainActor func readsHostProcessList() async throws {
         let (bottle, _) = try SteamOrchestratorFixture.makeBottle()

@@ -157,9 +157,12 @@ struct WineSteamClientDriverTests {
         #expect(WineSteamClientDriver.exeImageNames(inProcessListing: "explorer.exe") == ["explorer.exe"])
     }
 
-    @Test("Silent client start disables CEF GPU")
-    func clientLaunchArguments() {
-        #expect(WineSteamClientDriver.clientLaunchArguments == ["-silent", "-cef-disable-gpu"])
+    @Test("Foreground client start keeps CEF GPU disabled")
+    func foregroundClientLaunchArguments() {
+        #expect(
+            WineSteamClientDriver.clientLaunchArguments == ["-cef-disable-gpu"],
+            "-silent keeps Steam hidden, so client startup must contain only the GPU workaround"
+        )
     }
 
     @Test("The real driver reads the host process list without Wine")

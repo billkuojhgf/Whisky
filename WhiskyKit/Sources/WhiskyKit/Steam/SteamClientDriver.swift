@@ -35,7 +35,7 @@ public protocol SteamClientDriver: AnyObject {
     /// The bottle's process list, as `tasklist.exe` reports it.
     func processList() async -> [WineProcess]
 
-    /// Starts the Steam client silently. Must return promptly: the client runs
+    /// Starts the Steam client. Must return promptly: the client runs
     /// for the whole session and the orchestrator watches for it separately.
     func startClient(steamExe: URL)
 
@@ -106,7 +106,7 @@ open class WineSteamClientDriver: SteamClientDriver {
         )
     }
 
-    nonisolated static let clientLaunchArguments = ["-silent", "-cef-disable-gpu"]
+    nonisolated static let clientLaunchArguments = ["-cef-disable-gpu"]
 
     open func processList() async -> [WineProcess] {
         guard let output = try? await Wine.runWine(["tasklist.exe", "/FO", "CSV"], bottle: bottle) else {
@@ -115,7 +115,7 @@ open class WineSteamClientDriver: SteamClientDriver {
         return Wine.parseTasklistOutput(output)
     }
 
-    /// `steam.exe -silent` runs for the whole session, so the run is never awaited.
+    /// Steam runs for the whole session, so the run is never awaited.
     open func startClient(steamExe: URL) {
         let bottle = self.bottle
         Task {

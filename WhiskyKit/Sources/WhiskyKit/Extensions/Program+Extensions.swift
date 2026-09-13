@@ -98,7 +98,7 @@ public extension Program {
         // Normal Wine launch with program-specific settings
         await Wine.syncAudioRegistry(bottle: bottle)
 
-        let arguments = settings.arguments.split { $0.isWhitespace }.map(String.init)
+        let arguments = launchArguments()
         let environment = generateEnvironment()
 
         do {
@@ -242,9 +242,7 @@ public extension Program {
     ///   If nil, uses `settings.arguments` from the program's saved configuration.
     /// - Returns: The full Wine command string ready for terminal execution.
     func generateTerminalCommand(args: String? = nil) -> String {
-        Wine.generateRunCommand(
-            at: self.url, bottle: bottle, args: args ?? settings.arguments, environment: generateEnvironment()
-        )
+        generateTerminalCommand(args: launchArguments(args))
     }
 
     /// Generates the terminal command to run this program via Wine with array-based arguments.
@@ -361,8 +359,17 @@ public extension Program {
 }
 
 extension Program {
+    func launchArguments(_ argumentsString: String? = nil) -> [String] {
+        var arguments = (argumentsString ?? settings.arguments).split { $0.isWhitespace }.map(String.init)
+        if LauncherType.detect(from: url) == .steam,
+           !arguments.contains("-cef-disable-gpu") {
+            arguments.append("-cef-disable-gpu")
+        }
+        return arguments
+    }
+
     func runInWine() {
-        let arguments = settings.arguments.split { $0.isWhitespace }.map(String.init)
+        let arguments = launchArguments()
         let environment = generateEnvironment()
 
         Task {

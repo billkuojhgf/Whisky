@@ -123,12 +123,6 @@ public enum LauncherFixes {
             // Steam requires en_US locale to avoid steamwebhelper crashes
             bottle.settings.launcherLocale = launcher.recommendedLocale
 
-            // DXVK improves Steam UI performance
-            if force || !bottle.settings.dxvk {
-                bottle.settings.dxvk = true
-                bottle.settings.dxvkAsync = true
-            }
-
             // GPU spoofing helps with game compatibility checks
             bottle.settings.gpuSpoofing = true
 

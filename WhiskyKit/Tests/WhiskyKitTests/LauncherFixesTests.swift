@@ -156,17 +156,24 @@ final class LauncherFixesApplyTests: LauncherFixesTestCase {
         XCTAssertTrue(bottle.settings.launcherCompatibilityMode)
         XCTAssertEqual(bottle.settings.detectedLauncher, .steam)
         XCTAssertEqual(bottle.settings.launcherLocale, .english)
-        XCTAssertTrue(bottle.settings.dxvk)
+        XCTAssertEqual(bottle.settings.graphicsBackend, .recommended)
+        XCTAssertFalse(bottle.settings.dxvk)
         XCTAssertTrue(bottle.settings.dxvkAsync)
         XCTAssertTrue(bottle.settings.gpuSpoofing)
         XCTAssertEqual(bottle.settings.networkTimeout, 90_000)
+
+        XCTAssertEqual(
+            GraphicsBackendResolver.resolve(for: .steam, d3dMetalInstalled: true),
+            .dxvk
+        )
 
         // Saved synchronously so Wine reads the new values.
         let persisted = try persistedSettings()
         XCTAssertTrue(persisted.launcherCompatibilityMode)
         XCTAssertEqual(persisted.detectedLauncher, .steam)
         XCTAssertEqual(persisted.launcherLocale, .english)
-        XCTAssertTrue(persisted.dxvk)
+        XCTAssertEqual(persisted.graphicsBackend, .recommended)
+        XCTAssertFalse(persisted.dxvk)
         XCTAssertTrue(persisted.dxvkAsync)
         XCTAssertTrue(persisted.gpuSpoofing)
         XCTAssertEqual(persisted.networkTimeout, 90_000)
@@ -190,7 +197,7 @@ final class LauncherFixesApplyTests: LauncherFixesTestCase {
     }
 
     @MainActor
-    func testForceReappliesSteamDXVKSettings() {
+    func testForceKeepsExistingSteamDXVKSettings() {
         let bottle = makeBottle()
         bottle.settings.dxvk = true
         bottle.settings.dxvkAsync = false
@@ -198,6 +205,6 @@ final class LauncherFixesApplyTests: LauncherFixesTestCase {
         LauncherFixes.apply(to: bottle, launcher: .steam, force: true)
 
         XCTAssertTrue(bottle.settings.dxvk)
-        XCTAssertTrue(bottle.settings.dxvkAsync)
+        XCTAssertFalse(bottle.settings.dxvkAsync)
     }
 }

@@ -171,7 +171,7 @@ final class ProgramGenerateTerminalCommandTests: XCTestCase {
     }
 
     @MainActor
-    func testLaunchArgumentsAppendCEFDisableGPUOnlyForSteam() throws {
+    func testSteamLaunchArgumentsPreserveOnlyUserArguments() throws {
         let bottle = Bottle(bottleUrl: bottleURL)
         let steamDirectory = bottleURL.appending(path: "drive_c/Program Files (x86)/Steam")
         try FileManager.default.createDirectory(at: steamDirectory, withIntermediateDirectories: true)
@@ -182,17 +182,16 @@ final class ProgramGenerateTerminalCommandTests: XCTestCase {
         steam.settings.arguments = "-silent"
         let steamCommand = steam.generateTerminalCommand()
         XCTAssertTrue(steamCommand.contains("-silent"), "Steam should preserve user arguments")
-        XCTAssertEqual(
-            steamCommand.components(separatedBy: "-cef-disable-gpu").count - 1,
-            1,
-            "Steam should preserve user arguments and include the CEF GPU workaround once"
+        XCTAssertFalse(
+            steamCommand.contains("-cef-disable-gpu"),
+            "Steam should not receive a CEF GPU argument it did not request"
         )
 
         let game = Program(url: programURL, bottle: bottle)
         game.settings.arguments = "-windowed"
         XCTAssertFalse(
             game.generateTerminalCommand().contains("-cef-disable-gpu"),
-            "Non-Steam programs must not receive Steam's CEF GPU workaround"
+            "Non-Steam programs must not receive a CEF GPU argument"
         )
     }
 }
